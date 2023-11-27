@@ -1,9 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private int maxHealth = 100;
+    private int currentHealth;
+    public HealthBarController healthBarController; // Asegúrate de asignar esto en el Inspector
+    [SerializeField] private screenshake ScreenShake; // Referencia al script de screenshake.
     [SerializeField] private LayerMask groundLayers;
     [SerializeField] private Rigidbody2D myRBD2;
     [SerializeField] private float velocityModifier = 5f;
@@ -13,7 +18,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public GameObject projectilePrefab;
     [SerializeField] public Transform firePoint;
     public float projectileSpeed = 10f;
-
+    private void Start()
+    {
+        currentHealth = maxHealth;
+    }
     private void Update()
     {
         Vector2 movementPlayer = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
@@ -25,7 +33,10 @@ public class PlayerController : MonoBehaviour
 
         CheckFlip(mouseInput.x);
 
-        Debug.DrawRay(transform.position, mouseInput.normalized * rayDistance, Color.red);
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - (Vector2)transform.position).normalized;
+
+        Debug.DrawRay(transform.position, direction * rayDistance, Color.red);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -36,6 +47,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Left Click");
             Shoot();
+            ScreenShake.Shake();
         }
     }
 
@@ -46,22 +58,50 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
-        // Obtiene la posición del ratón en el mundo 2D.
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - (Vector2)transform.position).normalized;
 
-        // Calcula la dirección desde el "firePoint" hacia la posición del ratón.
-        Vector2 direction = (mousePosition - (Vector2)firePoint.position).normalized;
+        // Ajusta la rotación del sprite si es necesario
+        if (direction.x > 0)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else
+        {
+            spriteRenderer.flipX = true;
+        }
 
-        // Calcula la posición de inicio de la bala basada en la posición del jugador.
         Vector2 bulletStartPosition = (Vector2)transform.position;
 
-        // Crea un nuevo proyectil en la posición calculada con la rotación adecuada.
-        GameObject projectile = Instantiate(projectilePrefab, bulletStartPosition, Quaternion.Euler(0, 0, 0));
-
-        // Obtiene el componente Rigidbody2D del proyectil.
+        GameObject projectile = Instantiate(projectilePrefab, bulletStartPosition, Quaternion.identity);
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
-
-        // Aplica velocidad al proyectil en la dirección calculada.
         rb.velocity = direction * projectileSpeed;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("enemy"))
+        {
+            ScreenShake.Shake();
+            TakeDamage(20);
+        }
+    }
+    private void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        // Asegura que la salud no sea menor que cero
+        currentHealth = Mathf.Max(currentHealth, 0);
+
+        // Actualizar la barra de vida del jugador en el HealthBarController
+        healthBarController.UpdateHealth(-damage);
+
+        // Verifica si la salud es cero para cargar la escena de pérdida
+        if (currentHealth <= 0)
+        {
+            LoadLoseScene();
+        }
+    }
+    void LoadLoseScene()
+    {
+        SceneManager.LoadScene("Lose");
     }
 }

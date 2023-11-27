@@ -4,72 +4,89 @@ using UnityEngine;
 
 public class PatrolMovementController : MonoBehaviour
 {
-    [SerializeField] private float raycastLength = 2f; // Agrega esta línea para definir la longitud del Raycast.
+    [SerializeField] private float raycastLength = 2f;
     [SerializeField] private Transform[] checkpointsPatrol;
     [SerializeField] private Rigidbody2D myRBD2;
     [SerializeField] private AnimatorController animatorController;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private float normalVelocity = 3f; // Velocidad normal del enemigo.
-    [SerializeField] private float chaseVelocity = 5f; // Velocidad al perseguir al jugador.
-    [SerializeField] private Transform currentPositionTarget;
+    [SerializeField] private float normalVelocity = 3f;
+    [SerializeField] private float chaseVelocity = 5f;
+    [SerializeField] public Transform player;
+    private Transform currentPositionTarget;
     private int patrolPos = 0;
-    [SerializeField] public Transform player; // Referencia al jugador.
-    private bool isChasing = false; // Indica si el enemigo está persiguiendo al jugador.
+    private bool isChasing = false;
+    [SerializeField] public score scoreManager;
+    [SerializeField] private HealthBarController healthBarController; // Referencia al HealthBarController
+    private int maxHealth = 100;
+    private int currentHealth;
 
     private void Start()
     {
         currentPositionTarget = checkpointsPatrol[patrolPos];
         transform.position = currentPositionTarget.position;
+        scoreManager = FindObjectOfType<score>();
+        currentHealth = maxHealth;
+
     }
 
     private void Update()
     {
-        CheckNewPoint();
-
-        animatorController.SetVelocity(velocityCharacter: myRBD2.velocity.magnitude);
-
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
         if (distanceToPlayer < 3.0f)
         {
             isChasing = true;
             myRBD2.velocity = (player.position - transform.position).normalized * chaseVelocity;
-            CheckFlip(myRBD2.velocity.x);
         }
         else
         {
             isChasing = false;
             myRBD2.velocity = (currentPositionTarget.position - transform.position).normalized * normalVelocity;
-            CheckFlip(myRBD2.velocity.x);
         }
 
         // Dibuja el Raycast en la dirección de movimiento.
         Debug.DrawRay(transform.position, myRBD2.velocity.normalized * raycastLength, Color.red);
-    }
 
-
-    private void CheckNewPoint()
-    {
-        if (Mathf.Abs((transform.position - currentPositionTarget.position).magnitude) < 0.25)
+        // Verifica si el enemigo llegó al punto de patrulla y ajusta el giro en el eje X.
+        if (Vector2.Distance(transform.position, currentPositionTarget.position) < 0.1f)
         {
-            patrolPos = patrolPos + 1 == checkpointsPatrol.Length ? 0 : patrolPos + 1;
+            patrolPos = (patrolPos + 1) % checkpointsPatrol.Length;
             currentPositionTarget = checkpointsPatrol[patrolPos];
+            CheckFlip();
         }
     }
 
-    private void CheckFlip(float x_Position)
+    private void CheckFlip()
     {
-        spriteRenderer.flipX = (x_Position - transform.position.x) < 0;
+        spriteRenderer.flipX = (currentPositionTarget.position.x - transform.position.x) < 0;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("bala"))
         {
-            player = collision.gameObject.transform;
+            TakeDamage(20);
+
+            if (currentHealth <= 0)
+            {
+                // Aumenta la puntuación en 20 puntos al destruir al enemigo
+                scoreManager.IncreaseScore(20);
+
+                // Destruye al enemigo
+                Destroy(gameObject);
+            }
+
+            // Destruye la bala
+            Destroy(collision.gameObject);
         }
-
     }
+    private void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        // Asegura que la salud no sea menor que cero
+        currentHealth = Mathf.Max(currentHealth, 0);
 
+        // Actualizar la barra de vida del enemigo en el HealthBarController
+        healthBarController.UpdateHealth(-damage);
+    }
 }
-
-

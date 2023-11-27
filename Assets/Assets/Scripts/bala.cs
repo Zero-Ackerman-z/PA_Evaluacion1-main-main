@@ -1,27 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System;
 
 public class bala : MonoBehaviour
 {
-    public int bulletDamage = 20;
+    // Declarar un evento para notificar la colisión y daño
+    public event Action<Collider2D, int> BulletCollisionEvent;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private int damage = 10;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "enemy" || collision.gameObject.tag == "Muro")
+        if (collision.CompareTag("enemy") || collision.CompareTag("Muro"))
         {
-            Destroy(this.gameObject);
+            // Disparar el evento de colisión de bala y pasar el daño y el objeto de colisión
+            BulletCollisionEvent?.Invoke(collision, damage);
+
+            // Destruir la bala
+            Destroy(gameObject);
         }
     }
 }

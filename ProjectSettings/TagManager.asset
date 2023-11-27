@@ -8,6 +8,9 @@ TagManager:
   - PuntoB
   - enemy
   - Muro
+  - Undefined
+  - bala
+  - ObjetoAFollow
   layers:
   - Default
   - TransparentFX
