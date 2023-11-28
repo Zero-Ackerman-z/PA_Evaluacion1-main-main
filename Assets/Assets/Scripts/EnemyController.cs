@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private CircleCollider2D detectionZone;
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float returnSpeed = 3f;
+    [SerializeField] private GameObject projectilePrefab;
 
     private Transform player;
     private Vector3 initialPosition;
@@ -54,5 +55,7 @@ public class EnemyController : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, initialPosition, returnSpeed * Time.deltaTime);
         }
+
     }
+
 }

@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
-    public HealthBarController healthBarController; // Asegúrate de asignar esto en el Inspector
-    [SerializeField] private screenshake ScreenShake; // Referencia al script de screenshake.
+    public HealthBarController healthBarController; 
+    [SerializeField] private screenshake ScreenShake; 
     [SerializeField] private LayerMask groundLayers;
     [SerializeField] private Rigidbody2D myRBD2;
     [SerializeField] private float velocityModifier = 5f;
@@ -88,20 +88,30 @@ public class PlayerController : MonoBehaviour
     private void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        // Asegura que la salud no sea menor que cero
+        //  salud no sea menor que cero
         currentHealth = Mathf.Max(currentHealth, 0);
 
-        // Actualizar la barra de vida del jugador en el HealthBarController
+        // Actualizar la barra de vida del jugador 
         healthBarController.UpdateHealth(-damage);
 
-        // Verifica si la salud es cero para cargar la escena de pérdida
+        // Verifica si la salud es cero 
         if (currentHealth <= 0)
         {
             LoadLoseScene();
         }
     }
+    
     void LoadLoseScene()
     {
-        SceneManager.LoadScene("Lose");
+        EventManager.Instance.TriggerEvent("PlayerLost"); // Dispara el evento de perder
+    }
+    private void OnEnable()
+    {
+        EventManager.Instance.StartListening("PlayerLost", () => { });
+    }
+
+    private void OnDisable()
+    {
+        EventManager.Instance.StopListening("PlayerLost", () => { });
     }
 }

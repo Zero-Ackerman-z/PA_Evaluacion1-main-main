@@ -4,23 +4,52 @@ using UnityEngine;
 using TMPro;
 public class HealthBarController : MonoBehaviour
 {
-    public string loseSceneName;
+    private static HealthBarController instance; // Instancia estática del Singleton
+
     [SerializeField] private int maxValue;
     [Header("Health Bar Visual Components")]
     [SerializeField] private RectTransform healthBar;
     [SerializeField] private RectTransform modifiedBar;
     [SerializeField] private float changeSpeed;
-    public bool isPlayer; // Variable para determinar si este script está asociado al jugador
+    public bool isPlayer; 
 
     private int currentValue;
     private float _fullWidth;
     private float TargetWidth => currentValue * _fullWidth / maxValue;
     private Coroutine updateHealthBarCoroutine;
+    private int amount;
 
-    private void Start()
+    public static HealthBarController Instance
     {
-        currentValue = maxValue;
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<HealthBarController>();
+                if (instance == null)
+                {
+                    Debug.LogError("No se encontró HealthBarController en la escena.");
+                }
+            }
+            return instance;
+        }
+    }
+
+    private void Awake()
+    {
+        // Asegura que solo exista una instancia del Singleton
+        if (HealthBarController.Instance != null)
+        {
+            HealthBarController.Instance.UpdateHealth(amount);
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+
         _fullWidth = healthBar.rect.width;
+        currentValue = maxValue;
     }
 
     public void UpdateHealth(int amount)
@@ -34,7 +63,7 @@ public class HealthBarController : MonoBehaviour
         updateHealthBarCoroutine = StartCoroutine(AdjustWidthBar(amount));
     }
 
-    IEnumerator AdjustWidthBar(int amount)
+    private IEnumerator AdjustWidthBar(int amount)
     {
         RectTransform targetBar = amount >= 0 ? modifiedBar : healthBar;
         RectTransform animatedBar = amount >= 0 ? healthBar : modifiedBar;
@@ -70,5 +99,4 @@ public class HealthBarController : MonoBehaviour
             }
         }
     }
-    
 }

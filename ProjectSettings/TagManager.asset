@@ -11,6 +11,7 @@ TagManager:
   - Undefined
   - bala
   - ObjetoAFollow
+  - Bala enemy
   layers:
   - Default
   - TransparentFX

@@ -9,7 +9,6 @@ public class camara : MonoBehaviour
 
     private void Start()
     {
-        // Encuentra el componente CinemachineVirtualCamera en la escena.
         virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
     }
 

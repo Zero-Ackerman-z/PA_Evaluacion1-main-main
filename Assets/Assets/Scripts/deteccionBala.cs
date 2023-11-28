@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class deteccionBala : MonoBehaviour
 {
-    [SerializeField] public score scoreManager;
+    [SerializeField] public ScoreManager scoreManager;
     private int maxHealth = 100;
     private int currentHealth;
-    [SerializeField] public HealthBarController healthBarController; // Referencia al HealthBarController
+    [SerializeField] public HealthBarController healthBarController; 
     private void Start()
     {
         currentHealth = maxHealth;
@@ -29,9 +29,8 @@ public class deteccionBala : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            // Acciones si el enemigo muere
             Destroy(gameObject);
-            scoreManager.IncreaseScore(20); // Incremento del puntaje después de destruir al enemigo
+            scoreManager.IncreaseScore(20); 
         }
         healthBarController.UpdateHealth(-damage);
 

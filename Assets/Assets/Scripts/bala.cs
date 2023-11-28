@@ -9,7 +9,7 @@ public class bala : MonoBehaviour
     // Declarar un evento para notificar la colisión y daño
     public event Action<Collider2D, int> BulletCollisionEvent;
 
-    [SerializeField] private int damage = 10;
+     private int damage = 10;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -18,7 +18,6 @@ public class bala : MonoBehaviour
             // Disparar el evento de colisión de bala y pasar el daño y el objeto de colisión
             BulletCollisionEvent?.Invoke(collision, damage);
 
-            // Destruir la bala
             Destroy(gameObject);
         }
     }

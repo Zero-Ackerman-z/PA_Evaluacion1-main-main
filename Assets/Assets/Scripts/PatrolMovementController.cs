@@ -15,7 +15,7 @@ public class PatrolMovementController : MonoBehaviour
     private Transform currentPositionTarget;
     private int patrolPos = 0;
     private bool isChasing = false;
-    [SerializeField] public score scoreManager;
+    [SerializeField] public ScoreManager scoreManager;
     [SerializeField] private HealthBarController healthBarController; // Referencia al HealthBarController
     private int maxHealth = 100;
     private int currentHealth;
@@ -24,7 +24,7 @@ public class PatrolMovementController : MonoBehaviour
     {
         currentPositionTarget = checkpointsPatrol[patrolPos];
         transform.position = currentPositionTarget.position;
-        scoreManager = FindObjectOfType<score>();
+        scoreManager = FindObjectOfType<ScoreManager>();
         currentHealth = maxHealth;
 
     }
