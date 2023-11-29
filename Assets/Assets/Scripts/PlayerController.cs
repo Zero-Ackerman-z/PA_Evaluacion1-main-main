@@ -2,28 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
+
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private AudioManager audioManager; // Referencia al AudioManager
+    [SerializeField] private AudioManager audioManager;
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
     private float lowHealthThreshold = 0.25f;
-    public HealthBarController healthBarController; 
-    [SerializeField] private screenshake ScreenShake; 
+    public HealthBarController healthBarController;
+    [SerializeField] private screenshake ScreenShake;
     [SerializeField] private LayerMask groundLayers;
     [SerializeField] private Rigidbody2D myRBD2;
     [SerializeField] private float velocityModifier = 5f;
     [SerializeField] private float rayDistance = 10f;
     [SerializeField] private AnimatorController animatorController;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField]  GameObject projectilePrefab;
-    [SerializeField]  Transform firePoint;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform firePoint;
     [SerializeField] private AudioClip shootSound;
     [SerializeField] private AudioClip damageSound;
     [SerializeField] private AudioClip lowHealthEffect;
 
     private AudioSource audioSource;
     public float projectileSpeed = 10f;
+    /*private Controls controls; 
+
+    private void Awake()
+    {
+        controls = new Controls();
+        controls.GamePlay.Fire.performed += ctx => Shoot(); 
+        controls.GamePlay.Movement.performed += ctx => OnMove(ctx.ReadValue<Vector2>()); // Suscripción al evento de movimiento
+        controls.GamePlay.Aim.performed += ctx => UpdateAimPosition(ctx.ReadValue<Vector2>()); // Suscripción al evento de apuntar
+        controls.Enable();
+    }
+
+    private void OnMove(Vector2 direction)
+    {
+        myRBD2.velocity = direction * velocityModifier;
+        animatorController.SetVelocity(velocityCharacter: myRBD2.velocity.magnitude);
+    }*/
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
