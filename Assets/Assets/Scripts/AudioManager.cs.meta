@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 99b84e1414b6a2e438083a083a4a3649
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - backgroundMusic: {instanceID: 0}
+  - pursuitSound: {instanceID: 0}
+  - backgroundMusicChannel: {fileID: 11400000, guid: 113160ea551c5a446807f1cd0fe0e04f, type: 2}
+  - pursuitSoundChannel: {fileID: 11400000, guid: 113160ea551c5a446807f1cd0fe0e04f, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

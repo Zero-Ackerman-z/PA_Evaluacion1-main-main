@@ -8,15 +8,23 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private CircleCollider2D detectionZone;
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float returnSpeed = 3f;
-    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private AudioClip pursuitSound;
+    [SerializeField] private AudioClip backgroundMusic;
 
     private Transform player;
     private Vector3 initialPosition;
     private bool isChasing = false;
+    private AudioManager audioManager; 
+
+    private AudioSource audioSource;
+    private bool isBackgroundMusicPlaying = false;
 
     private void Start()
     {
         initialPosition = transform.position;
+        audioSource = GetComponent<AudioSource>(); 
+        audioManager = FindObjectOfType<AudioManager>();
+
     }
 
     private void Update()
@@ -40,10 +48,38 @@ public class EnemyController : MonoBehaviour
         if (distanceToPlayer < detectionRadius)
         {
             isChasing = true;
+
+            // Reproducir sonido de persecución cuando entra en modo persecución
+            if (pursuitSound != null && !audioSource.isPlaying)
+            {
+                audioSource.clip = pursuitSound;
+                audioSource.Play();
+            }
+
+            // Si la música de fondo está sonando, la silenciamos
+            if (isBackgroundMusicPlaying)
+            {
+                isBackgroundMusicPlaying = false;
+                audioManager.MuteChannel(audioManager.musicChannelConfig, true);
+            }
         }
         else
         {
             isChasing = false;
+
+            // Si la música de persecución está sonando, la silenciamos
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+
+            // Si la música de fondo no está sonando, la activamos
+            if (!isBackgroundMusicPlaying)
+            {
+                isBackgroundMusicPlaying = true;
+                audioManager.MuteChannel(audioManager.musicChannelConfig, false);
+                audioManager.PlayBackgroundMusic(backgroundMusic); 
+            }
         }
 
         if (isChasing)
@@ -55,7 +91,6 @@ public class EnemyController : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, initialPosition, returnSpeed * Time.deltaTime);
         }
-
     }
 
 }

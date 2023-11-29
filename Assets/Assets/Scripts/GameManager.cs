@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     void Start()
@@ -13,16 +12,10 @@ public class GameManager : MonoBehaviour
     {
         EventManager.Instance.StopListening("PlayerLost", HandlePlayerLost);
     }
-    public void ModifyHealth(int amount)
-    {
-        if (HealthBarController.Instance != null)
-        {
-            HealthBarController.Instance.UpdateHealth(amount);
-        }
-    }
+
     void HandlePlayerLost()
     {
         Debug.Log("El jugador ha perdido.");
-        SceneManager.LoadScene("Lose");
+        EventManager.Instance.TriggerEvent("PlayerLost"); // Dispara el evento de perder
     }
 }

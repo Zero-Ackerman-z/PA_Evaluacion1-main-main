@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
-
+    [SerializeField] private AudioManager audioManager; // Referencia al AudioManager
     [SerializeField] private int maxHealth = 100;
     private int currentHealth;
+    private float lowHealthThreshold = 0.25f;
     public HealthBarController healthBarController; 
     [SerializeField] private screenshake ScreenShake; 
     [SerializeField] private LayerMask groundLayers;
@@ -15,12 +16,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rayDistance = 10f;
     [SerializeField] private AnimatorController animatorController;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] public GameObject projectilePrefab;
-    [SerializeField] public Transform firePoint;
+    [SerializeField]  GameObject projectilePrefab;
+    [SerializeField]  Transform firePoint;
+    [SerializeField] private AudioClip shootSound;
+    [SerializeField] private AudioClip damageSound;
+    [SerializeField] private AudioClip lowHealthEffect;
+
+    private AudioSource audioSource;
     public float projectileSpeed = 10f;
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         currentHealth = maxHealth;
+        audioManager = FindObjectOfType<AudioManager>(); // Obtén la referencia al AudioManager en la escena
     }
     private void Update()
     {
@@ -76,6 +84,10 @@ public class PlayerController : MonoBehaviour
         GameObject projectile = Instantiate(projectilePrefab, bulletStartPosition, Quaternion.identity);
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         rb.velocity = direction * projectileSpeed;
+        if (shootSound != null && audioManager != null)
+        {
+            audioManager.PlayBulletSound(shootSound);
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -88,30 +100,48 @@ public class PlayerController : MonoBehaviour
     private void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        //  salud no sea menor que cero
         currentHealth = Mathf.Max(currentHealth, 0);
 
-        // Actualizar la barra de vida del jugador 
         healthBarController.UpdateHealth(-damage);
 
-        // Verifica si la salud es cero 
+        if (damageSound != null)
+        {
+            audioSource.PlayOneShot(damageSound);
+        }
+
+        // Verificar si la salud es cero 
         if (currentHealth <= 0)
         {
+            // Llama a la función para cargar la escena de pérdida
             LoadLoseScene();
         }
+        else
+        {
+            // Verificar si la salud es un cuarto de su total
+            if ((float)currentHealth / maxHealth <= lowHealthThreshold)
+            {
+                // Reproduce el efecto de vida baja si está configurado
+                if (lowHealthEffect != null)
+                {
+                    audioSource.PlayOneShot(lowHealthEffect);
+                }
+            }
+        }
+
     }
-    
-    void LoadLoseScene()
-    {
-        EventManager.Instance.TriggerEvent("PlayerLost"); // Dispara el evento de perder
-    }
+
     private void OnEnable()
     {
-        EventManager.Instance.StartListening("PlayerLost", () => { });
+        EventManager.Instance.StartListening("PlayerLost", LoadLoseScene);
     }
 
     private void OnDisable()
     {
-        EventManager.Instance.StopListening("PlayerLost", () => { });
+        EventManager.Instance.StopListening("PlayerLost", LoadLoseScene);
+    }
+
+    void LoadLoseScene()
+    {
+        SceneManager.LoadScene("Lose");
     }
 }

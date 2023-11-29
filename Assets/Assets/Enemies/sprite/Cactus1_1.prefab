@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3852964880470730104}
   m_Layer: 0
   m_Name: Cactus1_1
-  m_TagString: Bala enemy
+  m_TagString: bala
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

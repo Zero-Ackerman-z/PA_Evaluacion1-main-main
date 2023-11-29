@@ -91,11 +91,9 @@ public class HealthBarController : MonoBehaviour
             // Solo el jugador puede actualizar su barra de vida
             if (Input.GetMouseButtonDown(0))
             {
-                UpdateHealth(20);
             }
             else if (Input.GetMouseButtonDown(1))
             {
-                UpdateHealth(-20);
             }
         }
     }

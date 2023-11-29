@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class deteccionBala : MonoBehaviour
 {
-    [SerializeField] public ScoreManager scoreManager;
+    [SerializeField]  ScoreManager scoreManager;
     private int maxHealth = 100;
     private int currentHealth;
-    [SerializeField] public HealthBarController healthBarController; 
+    [SerializeField] public HealthBarController healthBarController;
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip damageSound;
+
     private void Start()
     {
         currentHealth = maxHealth;
+        audioSource = GetComponent<AudioSource>(); 
 
     }
 
@@ -27,12 +31,17 @@ public class deteccionBala : MonoBehaviour
     {
         currentHealth -= damage;
 
+        if (damageSound != null)
+        {
+            audioSource.PlayOneShot(damageSound);
+        }
+
         if (currentHealth <= 0)
         {
             Destroy(gameObject);
-            scoreManager.IncreaseScore(20); 
+            scoreManager.IncreaseScore(20);
         }
-        healthBarController.UpdateHealth(-damage);
 
+        healthBarController.UpdateHealth(-damage);
     }
 }

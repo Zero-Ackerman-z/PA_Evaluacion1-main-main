@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PatrolMovementController : MonoBehaviour
 {
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip damageSound;
     [SerializeField] private float raycastLength = 2f;
     [SerializeField] private Transform[] checkpointsPatrol;
     [SerializeField] private Rigidbody2D myRBD2;
@@ -11,11 +13,11 @@ public class PatrolMovementController : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private float normalVelocity = 3f;
     [SerializeField] private float chaseVelocity = 5f;
-    [SerializeField] public Transform player;
+    [SerializeField]  Transform player;
     private Transform currentPositionTarget;
     private int patrolPos = 0;
     private bool isChasing = false;
-    [SerializeField] public ScoreManager scoreManager;
+    [SerializeField]  ScoreManager scoreManager;
     [SerializeField] private HealthBarController healthBarController; // Referencia al HealthBarController
     private int maxHealth = 100;
     private int currentHealth;
@@ -24,8 +26,9 @@ public class PatrolMovementController : MonoBehaviour
     {
         currentPositionTarget = checkpointsPatrol[patrolPos];
         transform.position = currentPositionTarget.position;
-        scoreManager = FindObjectOfType<ScoreManager>();
+        scoreManager = GetComponent<ScoreManager>();
         currentHealth = maxHealth;
+        audioSource = GetComponent<AudioSource>(); // Obtén el componente AudioSource
 
     }
 
@@ -82,6 +85,10 @@ public class PatrolMovementController : MonoBehaviour
     }
     private void TakeDamage(int damage)
     {
+        if (damageSound != null)
+        {
+            audioSource.PlayOneShot(damageSound);
+        }
         currentHealth -= damage;
         // Asegura que la salud no sea menor que cero
         currentHealth = Mathf.Max(currentHealth, 0);
@@ -89,4 +96,5 @@ public class PatrolMovementController : MonoBehaviour
         // Actualizar la barra de vida del enemigo en el HealthBarController
         healthBarController.UpdateHealth(-damage);
     }
+
 }
